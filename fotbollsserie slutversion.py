@@ -1,33 +1,15 @@
-"""nytt i denna version: 
-omvandalr 3.2 till OOP
+"""footbollmanager
 
-allt är nu case insensitive
-checka input finns istället för dubbelkod
+inte längre skolprojekt, mitt första riktiga egna projekt
 
-** från 3.2 och tidigare: 
+nuvarande steg: förstå och börja med SQL, SQLite och SQLite3
+vad jag vet nu: *denna fil ska skrivas om med SQLlite3      *textfilen ska ersättas med en .db fil som är en SQLite fil        *SQL är språket som dessa kommunicerar med
 
-följande saker från version 3.0: 
-fixar inmatningen av resultat och använder .join för att skriva ut lagen vid fel inmatning
-fixat så att den sorterar tabellen innan utskrift
-ändrad __lt__ för sortering i flera steg
-
-
-i 3.1: göra en funktion för kontroll av inmatning istället för att skriva koden dubblet (för hemma och bortalag)
-
-problem på vägen: efter att jag ändrade __lt__ funkade allt som det ska förutom alfabetiska ordningen pga reversed= true
-tog nu bort reveresed= true men ändrade < och > i __lt__ istället
-
-en bugg hittad!! man kan välja samma lag som hemma och borta (((LÖST NU!! men while loop i dokumentera_match)))
-
-hur mycket kan jag ändra i A-nivå? kan jag bara låta användaren välja lag från lista istället för att skriva?
-
-separerar logik för att sen bygga GUI runt det, hittils: 
--tagit bort att skriva "meny" tar dig tillbaka till menyn då det finns en tillbaka knapp
-- nu returneras None om det inte finns några matchningar med inmatningen
-- frågar inte om ny inmatning efter check
-"""
+nästa steg: *bättre UI förmodligen customtkinter, kanske pyqt6
+*bättre/ proffsig GUI struktur"""
 
 from tkinter import *
+import sqlite3
 
 class Lag: 
     def __init__(self, lagnamn, vinster, oavgjorda, förluster, gjorda_mål, insläppta_mål):
