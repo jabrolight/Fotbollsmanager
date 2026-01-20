@@ -9,7 +9,7 @@ nästa steg: *bättre UI förmodligen customtkinter, kanske pyqt6
 *bättre/ proffsig GUI struktur"""
 
 from tkinter import *
-import sqlite3
+from sqlite3 import *
 
 class Lag: 
     def __init__(self, lagnamn, vinster, oavgjorda, förluster, gjorda_mål, insläppta_mål):
@@ -71,11 +71,15 @@ class Liga():
             position +=1
         return tabell
     
-    def fylla_dict_med_objekt(self):        # istället för läs_in_från_fil  #läser in filen och fyller en dictionary med lagnamn som nyckel och Lagobjekt som värde
-        with open(self.fil, "r", encoding="utf-8") as fil:
-            for rad in fil:
-                rad = rad.strip().split(";")
-                self.dict_med_lag[rad[0]]= Lag(rad[0], rad[1], rad[2], rad[3], rad[4], rad[5])
+    def fylla_dict_med_objekt(self):        #hämtar datan från db och fyller dict
+        conn= connect(self.fil)     
+        Cursor= conn.cursor()
+        Cursor.execute("SELECT * FROM lagen")
+        lista_med_lag= Cursor.fetchall()            #lägger allt från db i en lista
+
+        for lag in lista_med_lag:
+            self.dict_med_lag[lag[0]]= Lag(*lag)        # *lag funkar istället för lag[0], lag[1], lag[2]... för att databasen har samma kolumnordning som Laagattributen
+        conn.close()
         return self.dict_med_lag
 
     def checka_2(self, lagnamn):                #version 2 av checka_input, fyller en lista med lag som matchar inmatningen, GUI väljer sen hur det ska användas
@@ -101,11 +105,16 @@ class Liga():
         hemmalaget.spelad_match(hemmalag_mål, bortalag_mål)                 #ändrar Lag-objektens attribut
         bortalaget.spelad_match(bortalag_mål, hemmalag_mål)
 
+        self.uppdatera_db(hemmalaget)                       #lägger in dem uppdaterade attributen i databasen
+        self.uppdatera_db(bortalaget)
 
-    def skriv_i_fil(self):      #vet inte inte en rad skrivs i filen för det finnns i Lag men använder den i en loop
-        with open(self.fil, "w", encoding="utf-8") as fil:
-            for lag in self.dict_med_lag.values():
-                fil.write(lag.skriv_lag_i_fil())
+    def uppdatera_db(self, lag):      
+        conn= connect("lagen.db")
+        cursor= conn.cursor()
+        cursor.execute("UPDATE lagen SET vinster=?, oavgjorda=?, förluster=?, gjorda_mål=?, insläppta_mål=? WHERE lagnamn=?", (lag.vinster, lag.oavgjorda, lag.förluster, lag.gjorda_mål, lag.insläppta_mål, lag.lagnamn))
+        #UPDATE och sedan WHERE gör att attributen endast för det berörda laget ändras
+        conn.commit()
+        conn.close()
 
 
 class GUI:
@@ -256,7 +265,7 @@ class GUI:
      
 
 def main():
-    premier_league= Liga("Lagfil.txt")
+    premier_league= Liga("Lagen.db")
     root= Tk()
     GUI(root, premier_league)
     root.mainloop()
