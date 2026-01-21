@@ -6,7 +6,16 @@ nuvarande steg: förstå och börja med SQL, SQLite och SQLite3
 vad jag vet nu: *denna fil ska skrivas om med SQLlite3      *textfilen ska ersättas med en .db fil som är en SQLite fil        *SQL är språket som dessa kommunicerar med
 
 nästa steg: *bättre UI förmodligen customtkinter, kanske pyqt6
-*bättre/ proffsig GUI struktur"""
+*bättre/ proffsig GUI struktur
+
+senast: databas_tabeller() som initierar en tabell (inte den andra än)
+introducerat matchhistorik
+
+till nästa gång: integrera uppdatera_db i dokumentera_match2
+initiera även andra tabellen, CREATE IF NOT EXISTS
+
+
+"""
 
 from tkinter import *
 from sqlite3 import *
@@ -24,10 +33,6 @@ class Lag:
     def __str__(self):      #objekten skrivs ut som en rad av tabellen, används i Liga.__str__
         return f"{self.lagnamn:<15} {self.vinster:<3} {self.oavgjorda:<3} {self.förluster:<3} {self.gjorda_mål:>3}-{self.insläppta_mål:<3} {self.poäng:<3}" 
     
-    def skriv_lag_i_fil(self):      #vet hur en rad skrivs i filen, Liga.skriv_i_fil använder denna i en loop
-        return f"{self.lagnamn};{self.vinster};{self.oavgjorda};{self.förluster};{self.gjorda_mål};{self.insläppta_mål}\n"
-
-
 
     def __lt__(self, other):                #flera steg för jämförelser, går till nästa endast om steget över är lika 
         if self.poäng != other.poäng:
@@ -56,11 +61,13 @@ class Lag:
         
 
 class Liga():
-    def __init__(self, fil):
-        self.fil= fil
+    def __init__(self, ligafil):
+        self.fil= ligafil
         self.dict_med_lag = {}
         self.fylla_dict_med_objekt()        #fyller dict direkt, slipper göra det i main
-    
+        self.databas_tabeller()
+
+
     def __str__(self):          #istället för skriv_ut_tabell utanför en klass
         tabell = f"{"V":>20}{"O":>4}{"F":>4}{"M":>7}{"P":>5}\n"
         sorterad_lista = sorted(list(self.dict_med_lag.values()))
@@ -71,6 +78,14 @@ class Liga():
             position +=1
         return tabell
     
+    def databas_tabeller(self):
+        conn= connect(self.fil)
+        cursor= conn.cursor()
+        cursor.execute("CREATE TABLE IF NOT EXISTS matchhistorik (match_id INTEGER PRIMARY KEY AUTOINCREMENT, hemmalag TEXT, bortalag TEXT, hemmamål INTEGER, bortamål INTEGER)")
+
+        conn.commit()
+        conn.close()
+
     def fylla_dict_med_objekt(self):        #hämtar datan från db och fyller dict
         conn= connect(self.fil)     
         Cursor= conn.cursor()
@@ -108,8 +123,14 @@ class Liga():
         self.uppdatera_db(hemmalaget)                       #lägger in dem uppdaterade attributen i databasen
         self.uppdatera_db(bortalaget)
 
-    def uppdatera_db(self, lag):      
-        conn= connect("lagen.db")
+        with connect(self.fil) as conn:
+            cursor= conn.cursor()
+            cursor.execute("INSERT INTO matchhistorik(hemmalag, bortalag, hemmamål, bortamål) VALUES(?,?,?,?)", (hemmalagets_namn, bortalagets_namn, hemmalag_mål, bortalag_mål))
+            conn.commit()
+
+
+    def uppdatera_db(self, lag):        #behövs egentligen inte, kan skrivas i metoden över så, conn öppnas och stängs en gång extra i onödan
+        conn= connect(self.fil)
         cursor= conn.cursor()
         cursor.execute("UPDATE lagen SET vinster=?, oavgjorda=?, förluster=?, gjorda_mål=?, insläppta_mål=? WHERE lagnamn=?", (lag.vinster, lag.oavgjorda, lag.förluster, lag.gjorda_mål, lag.insläppta_mål, lag.lagnamn))
         #UPDATE och sedan WHERE gör att attributen endast för det berörda laget ändras
@@ -230,7 +251,6 @@ class GUI:
         skriv_ut = Label(self.aktiv_frame, text=f"matchen {hemmalagets_namn}-{bortalagets_namn}\n{hemmamål}-{bortamål} registrerad", font=(25), width=40)       #bekräftar att allt har kontrollerats
         skriv_ut.grid(column=2, row=11, pady=10)
 
-        self.liga.skriv_i_fil()                                  #uppdaterar filen
 
     def välj_från_rullgardin(self, hemma_eller_borta):              #har parametern hemma_eller_borta för att avgöra vilket lag valet från rullgardinen berör
         valet= self.meny.get()
