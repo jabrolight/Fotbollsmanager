@@ -56,8 +56,9 @@ class Lag:
         
 
 class Liga():
-    def __init__(self, fil):
-        self.fil= fil
+    def __init__(self, ligafil, matchfil):
+        self.fil= ligafil
+        self.matchfil= matchfil
         self.dict_med_lag = {}
         self.fylla_dict_med_objekt()        #fyller dict direkt, slipper göra det i main
     
