@@ -120,22 +120,15 @@ class Liga():
         hemmalaget.spelad_match(hemmalag_mål, bortalag_mål)                 #ändrar Lag-objektens attribut
         bortalaget.spelad_match(bortalag_mål, hemmalag_mål)
 
-        self.uppdatera_db(hemmalaget)                       #lägger in dem uppdaterade attributen i databasen
-        self.uppdatera_db(bortalaget)
-
         with connect(self.fil) as conn:
             cursor= conn.cursor()
+            cursor.execute("UPDATE lagen SET vinster=?, oavgjorda=?, förluster=?, gjorda_mål=?, insläppta_mål=? WHERE lagnamn=?", (hemmalaget.vinster, hemmalaget.oavgjorda, hemmalaget.förluster, hemmalaget.gjorda_mål, hemmalaget.insläppta_mål, hemmalaget.lagnamn))
+            #uppdaterar hemmalaget i db
+            cursor.execute("UPDATE lagen SET vinster=?, oavgjorda=?, förluster=?, gjorda_mål=?, insläppta_mål=? WHERE lagnamn=?", (bortalaget.vinster, bortalaget.oavgjorda, bortalaget.förluster, bortalaget.gjorda_mål, bortalaget.insläppta_mål, bortalaget.lagnamn))
+            #uppdaterar bortalaget i db
             cursor.execute("INSERT INTO matchhistorik(hemmalag, bortalag, hemmamål, bortamål) VALUES(?,?,?,?)", (hemmalagets_namn, bortalagets_namn, hemmalag_mål, bortalag_mål))
+            #lägger till matchen i historiken
             conn.commit()
-
-
-    def uppdatera_db(self, lag):        #behövs egentligen inte, kan skrivas i metoden över så, conn öppnas och stängs en gång extra i onödan
-        conn= connect(self.fil)
-        cursor= conn.cursor()
-        cursor.execute("UPDATE lagen SET vinster=?, oavgjorda=?, förluster=?, gjorda_mål=?, insläppta_mål=? WHERE lagnamn=?", (lag.vinster, lag.oavgjorda, lag.förluster, lag.gjorda_mål, lag.insläppta_mål, lag.lagnamn))
-        #UPDATE och sedan WHERE gör att attributen endast för det berörda laget ändras
-        conn.commit()
-        conn.close()
 
 
 class GUI:
