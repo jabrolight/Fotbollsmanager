@@ -10,8 +10,12 @@ nästa steg: *bättre UI förmodligen customtkinter, kanske pyqt6
 
 senast: databas_tabeller() som initierar en tabell (inte den andra än)
 introducerat matchhistorik
+integrerat uppdatera_db i dokumentera_match2
+introducerat matchhistorik i GUI men går att göra bättre med treeview och sedan customtkinter
 
-till nästa gång: integrera uppdatera_db i dokumentera_match2
+till nästa gång: hämta rullgardinsmeny istället för text för lagnamn
+
+lär dig treeview för tex att visa matchhistoriken
 initiera även andra tabellen, CREATE IF NOT EXISTS
 
 
@@ -130,6 +134,13 @@ class Liga():
             #lägger till matchen i historiken
             conn.commit()
 
+    def hämta_historik(self):
+        with connect(self.fil) as conn:
+            Cursor=conn.cursor()
+            Cursor.execute("SELECT hemmalag, bortalag, hemmamål, bortamål FROM matchhistorik ORDER BY match_id DESC")
+            historik= Cursor.fetchall()
+        return historik
+
 
 class GUI:
     def __init__(self, root, liga):                 #tar ett Liga objekt och ett fönster
@@ -190,6 +201,12 @@ class GUI:
         tillbaka_knapp = Button(self.aktiv_frame, text="tillbaka", font=(25), width=20, command= self.tillbaka_knapp)               #för att gå tillbaka till main frame
         tillbaka_knapp.grid(column=2, row=6, pady=30)
 
+        self.historik= Text(self.aktiv_frame, width=50, height=10)
+        self.historik.grid(column=1, row=12, columnspan=3)
+
+        self.visa_historik()
+
+
     def spara_match(self):
         self.felmeddelande= Label(self.aktiv_frame, text="", font=(25), width=40, height=3)       # height=3 för att täcka ett föregående meddelande som är två rader
         self.felmeddelande.grid(column=2, row=7)                                                                                         #det är samma felmeddalande som används i hela programmet, bara texten ändras
@@ -244,6 +261,7 @@ class GUI:
         skriv_ut = Label(self.aktiv_frame, text=f"matchen {hemmalagets_namn}-{bortalagets_namn}\n{hemmamål}-{bortamål} registrerad", font=(25), width=40)       #bekräftar att allt har kontrollerats
         skriv_ut.grid(column=2, row=11, pady=10)
 
+        self.visa_historik()
 
     def välj_från_rullgardin(self, hemma_eller_borta):              #har parametern hemma_eller_borta för att avgöra vilket lag valet från rullgardinen berör
         valet= self.meny.get()
@@ -254,6 +272,14 @@ class GUI:
 
         self.spara_match()                              #går tillbaka till spara_match för att fånga andra fel eller köra igenom hela
  
+    
+    def visa_historik(self):
+        self.historik.delete(1.0, END)
+        utskrift="matchhistorik: \n"
+        historik_lista= self.liga.hämta_historik()
+        for match in historik_lista:
+            utskrift += f"{match[0]} {match[2]} - {match[3]} {match[1]}\n"
+        self.historik.insert(END, utskrift)
 
     def se_tabell(self):                                #visar tabellen i en sekundär frame
         self.main_frame.pack_forget()
