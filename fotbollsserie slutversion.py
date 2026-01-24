@@ -68,8 +68,9 @@ class Liga():
     def __init__(self, ligafil):
         self.fil= ligafil
         self.dict_med_lag = {}
+        self.databas_tabeller()             #skapar tabellerna om dem inte redan finns
         self.fylla_dict_med_objekt()        #fyller dict direkt, slipper göra det i main
-        self.databas_tabeller()
+
 
 
     def __str__(self):          #istället för skriv_ut_tabell utanför en klass
@@ -101,19 +102,6 @@ class Liga():
         conn.close()
         return self.dict_med_lag
 
-    def checka_2(self, lagnamn):                #version 2 av checka_input, fyller en lista med lag som matchar inmatningen, GUI väljer sen hur det ska användas
- 
-        lagnamn = lagnamn.lower().strip()
-        for lag in self.dict_med_lag:
-            if lag.strip().lower() == lagnamn:
-                return [lag]
-                                          
-        matchningar= []
-        for lag in self.dict_med_lag:
-            if lag.lower().startswith(lagnamn):
-                matchningar.append(lag)
-
-        return matchningar                      #lista med alla lag som börjar med inmatningen
 
     def dokumentera_match2(self, hemmalagets_namn, bortalagets_namn, hemmalag_mål, bortalag_mål):           # version 2 av dokumentera_match, förenklad då GUI hanterar resten
 
@@ -140,6 +128,14 @@ class Liga():
             Cursor.execute("SELECT hemmalag, bortalag, hemmamål, bortamål FROM matchhistorik ORDER BY match_id DESC")
             historik= Cursor.fetchall()
         return historik
+    
+
+    def alla_lagnamn(self):
+        lista_med_lagnamn=[]                    #används för rullgardinen i GUI
+        for lagnamn in self.dict_med_lag.keys():
+            lista_med_lagnamn.append(lagnamn)
+        return lista_med_lagnamn
+
 
 
 class GUI:
@@ -171,15 +167,17 @@ class GUI:
         self.aktiv_frame.pack()                 
 
         self.hemmalag_var= StringVar()                                                                                #stringvar för att det ska bli smidigare att set() senare (från rullgardinen)
+        self.hemmalag_var.set("Välj hemmalag")
         self.hemmalag_label = Label(self.aktiv_frame, text="Hemmalag: ", font=(25))
         self.hemmalag_label.grid(column=1, row=1)
-        self.hemmalag_inmatning= Entry(self.aktiv_frame, textvariable= self.hemmalag_var)
+        self.hemmalag_inmatning= OptionMenu(self.aktiv_frame, self.hemmalag_var, *self.liga.alla_lagnamn())
         self.hemmalag_inmatning.grid(column= 1, row=2, padx=20, pady=20)
 
         self.bortalag_var= StringVar()
+        self.bortalag_var.set("Välj bortalag")
         self.bortalag_label= Label(self.aktiv_frame, text="Bortalag: ", font=(25))
         self.bortalag_label.grid(column=3, row=1)
-        self.bortalag_inmatning= Entry(self.aktiv_frame, textvariable= self.bortalag_var)
+        self.bortalag_inmatning= OptionMenu(self.aktiv_frame, self.bortalag_var, *self.liga.alla_lagnamn())
         self.bortalag_inmatning.grid(column= 3, row=2, padx=20, pady=20)
 
         self.hemmalag_mål_label= Label(self.aktiv_frame, text="Hemmalagets mål", font=(25))
@@ -210,68 +208,31 @@ class GUI:
     def spara_match(self):
         self.felmeddelande= Label(self.aktiv_frame, text="", font=(25), width=40, height=3)       # height=3 för att täcka ett föregående meddelande som är två rader
         self.felmeddelande.grid(column=2, row=7)                                                                                         #det är samma felmeddalande som används i hela programmet, bara texten ändras
-        self.meny= StringVar(self.aktiv_frame, value="Välj här")        #används för en rullgardinsmeny vid fel inmatning
 
-        hemmalag= self.hemmalag_inmatning.get()                                           
-        bortalag= self.bortalag_inmatning.get()
         try:
             hemmamål= int(self.hemmalag_mål_inmatning.get())
             bortamål= int(self.bortalag_mål_inmatning.get())
         except ValueError:
             self.felmeddelande.config(text="fel inmatning, skriv resultatet i siffror")
             return
-
-        inmatningsmatchning_hemmalag= self.liga.checka_2(hemmalag)                                  #anropar check_2 för att få tillbaka en lista
-        inmatningsmatchning_bortalag= self.liga.checka_2(bortalag)
-
-        if len(inmatningsmatchning_hemmalag)==0:                                                                   #hanterar listan från checka_2 beroende på längd (hemma, sen bortalaget)
-            self.felmeddelande.config(text=f"det finns inget lag som heter {hemmalag}")
-            return
-        elif len(inmatningsmatchning_hemmalag)>1:
-            self.felmeddelande.config(text=f"Du skrev {hemmalag}, vilket av dessa lag menar du? \n {inmatningsmatchning_hemmalag}")
-            rullgardin_med_matchningar= OptionMenu(self.aktiv_frame, self.meny, *inmatningsmatchning_hemmalag)                              # "*" gör så att varje element i listan blir ett alternativ i rullgardinen
-            rullgardin_med_matchningar.grid(column=2, row=9)
-            välj_knapp= Button(self.aktiv_frame, text="välj", width=20, command=lambda: self.välj_från_rullgardin("Hemmalaget") )                 #anropar välj_från_rullgardin som bekräftar användarens val
-            välj_knapp.grid(column=2, row=10, pady=10)
+        
+        if self.hemmalag_var.get()== "Välj hemmalag" or self.bortalag_var.get()== "Välj bortalag":
+            self.felmeddelande.config(text="Välj både hemma och bortalag")
             return
         
-        if len(inmatningsmatchning_bortalag)==0:
-            self.felmeddelande.config(text=f"det finns inget lag som heter {bortalag}")
+        if self.hemmalag_var.get() == self.bortalag_var.get():
+            self.felmeddelande.config(text="Ett lag kan inte möta sig sjäkv")
             return
-        elif len(inmatningsmatchning_bortalag)>1:
-            self.felmeddelande.config(text=f"Du skrev {bortalag}, vilket av dessa lag menar du? \n {inmatningsmatchning_bortalag}")
-            rullgardin_med_matchningar= OptionMenu(self.aktiv_frame, self.meny, *inmatningsmatchning_bortalag )
-            rullgardin_med_matchningar.grid(column=2, row=9)
-            välj_knapp= Button(self.aktiv_frame, text="välj", width=20, command=lambda: self.välj_från_rullgardin("Bortalaget") )
-            välj_knapp.grid(column=2, row=10, pady=10)
-            return
-        
-        
 
-        if len(inmatningsmatchning_hemmalag)==1 and len(inmatningsmatchning_bortalag)==1:               #om användaren skriver rätt lagnamn eller med bara ett lag som kan ha menats
-            hemmalagets_namn= inmatningsmatchning_hemmalag[0]
-            bortalagets_namn= inmatningsmatchning_bortalag[0]
-            if hemmalagets_namn== bortalagets_namn:
-                self.felmeddelande.config(text="Ett lag kan inte möta sig själv")
-                return
-            #kontrollerna över gör så att man alltid hamnar här till slut
-            self.liga.dokumentera_match2(hemmalagets_namn, bortalagets_namn, hemmamål, bortamål)                    # dokumentera_match2 anropar i sin tur spelad_match för att ändra Lag attribut
+        #kontrollerna över gör så att man alltid hamnar här till slut
+        self.liga.dokumentera_match2(self.hemmalag_var.get(), self.bortalag_var.get(), hemmamål, bortamål)                    # dokumentera_match2 anropar i sin tur spelad_match för att ändra Lag attribut
 
         self.felmeddelande.config(text=" ")
-        skriv_ut = Label(self.aktiv_frame, text=f"matchen {hemmalagets_namn}-{bortalagets_namn}\n{hemmamål}-{bortamål} registrerad", font=(25), width=40)       #bekräftar att allt har kontrollerats
+        skriv_ut = Label(self.aktiv_frame, text=f"matchen {self.hemmalag_var.get()}-{self.bortalag_var.get()}\n{hemmamål}-{bortamål} registrerad", font=(25), width=40)       #bekräftar att allt har kontrollerats
         skriv_ut.grid(column=2, row=11, pady=10)
 
         self.visa_historik()
 
-    def välj_från_rullgardin(self, hemma_eller_borta):              #har parametern hemma_eller_borta för att avgöra vilket lag valet från rullgardinen berör
-        valet= self.meny.get()
-        if hemma_eller_borta == "Hemmalaget":
-            self.hemmalag_var.set(valet)
-        elif hemma_eller_borta =="Bortalaget":
-            self.bortalag_var.set(valet)
-
-        self.spara_match()                              #går tillbaka till spara_match för att fånga andra fel eller köra igenom hela
- 
     
     def visa_historik(self):
         self.historik.delete(1.0, END)
