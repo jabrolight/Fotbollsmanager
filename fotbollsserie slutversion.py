@@ -8,16 +8,14 @@ vad jag vet nu: *denna fil ska skrivas om med SQLlite3      *textfilen ska ersä
 nästa steg: *bättre UI förmodligen customtkinter, kanske pyqt6
 *bättre/ proffsig GUI struktur
 
-senast: databas_tabeller() som initierar en tabell (inte den andra än)
-introducerat matchhistorik
-integrerat uppdatera_db i dokumentera_match2
+senast: databas_tabeller() som initierar en tabell (BÅDA TABELLERNA NU)
 introducerat matchhistorik i GUI men går att göra bättre med treeview och sedan customtkinter
+rullgardinsmeny istället för text för lagnamn
+demolag metod som anropas inte väljer att göra egen liga
 
-till nästa gång: hämta rullgardinsmeny istället för text för lagnamn
-
+till nästa gång: 
+Onboarding som låter användaren välja demo eller egen liga (hur ska användaren välja en liga som den har skapat tidigare??)
 lär dig treeview för tex att visa matchhistoriken
-initiera även andra tabellen, CREATE IF NOT EXISTS
-
 
 """
 
@@ -86,6 +84,7 @@ class Liga():
     def databas_tabeller(self):
         conn= connect(self.fil)
         cursor= conn.cursor()
+        cursor.execute("CREATE TABLE IF NOT EXISTS lagen (lagnamn TEXT PRIMARY KEY, vinster INTEGER, oavgjorda INTEGER, förluster INTEGER, gjorda_mål INTEGER, insläppta_mål INTEGER)")
         cursor.execute("CREATE TABLE IF NOT EXISTS matchhistorik (match_id INTEGER PRIMARY KEY AUTOINCREMENT, hemmalag TEXT, bortalag TEXT, hemmamål INTEGER, bortamål INTEGER)")
 
         conn.commit()
@@ -136,6 +135,16 @@ class Liga():
             lista_med_lagnamn.append(lagnamn)
         return lista_med_lagnamn
 
+    def demodata(self):                 #anropas om användaren att köra demo istället för att skapa en egen liga
+        demolag= [("Arsenal",0,0,0,0,0) ,("Man City",0,0,0,0,0) ,("Chelsea",0,0,0,0,0) ,("Aston Villa",0,0,0,0,0) ,("Brighton",0,0,0,0,0),
+                ("Sunderland",0,0,0,0,0) ,("Man Utd",0,0,0,0,0) ,("Liverpool",0,0,0,0,0) ,("Crystal Palace",0,0,0,0,0) ,("Brentford",0,0,0,0,0),
+                ("Bournemouth",0,0,0,0,0) ,("Tottenham",0,0,0,0,0) ,("Newcastle",0,0,0,0,0) ,("Everton",0,0,0,0,0) ,("Fullham",0,0,0,0,0),
+                ("Nottingham",0,0,0,0,0) ,("West Ham",0,0,0,0,0) ,("Leeds",0,0,0,0,0) ,("Burnkey",0,0,0,0,0) ,("Wolverhampton",0,0,0,0,0)]
+        with connect(self.fil) as conn:
+            cursor= conn.cursor()
+            cursor.execute("DELETE FROM lagen")     #rensar tabellen efter varje demo
+            cursor.executemany("INSERT INTO lagen VALUES(?,?,?,?,?,?)", demolag)    #fyller demoligan
+            conn.commit()
 
 
 class GUI:
