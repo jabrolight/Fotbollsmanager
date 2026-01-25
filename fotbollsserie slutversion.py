@@ -8,16 +8,14 @@ vad jag vet nu: *denna fil ska skrivas om med SQLlite3      *textfilen ska ersä
 nästa steg: *bättre UI förmodligen customtkinter, kanske pyqt6
 *bättre/ proffsig GUI struktur
 
-senast: databas_tabeller() som initierar en tabell (inte den andra än)
-introducerat matchhistorik
-integrerat uppdatera_db i dokumentera_match2
-introducerat matchhistorik i GUI men går att göra bättre med treeview och sedan customtkinter
+senast:
+demolag metod som anropas inte väljer att göra egen liga
+demoliga knapp i gui (onboarding frame) resten av knapparna i onboarding funkar inte än
 
-till nästa gång: hämta rullgardinsmeny istället för text för lagnamn
-
+till nästa gång: 
+i main frame ska det vara en tillbaka till onboarding fram knapp inte avsluta (tillbaka_knapp kan inte användas som den är nu, den går tillbaka till main frame)
+få resten av onboarding knapparna att funka, att skapa egen liga och sen att man kan spara och välja den igen senare
 lär dig treeview för tex att visa matchhistoriken
-initiera även andra tabellen, CREATE IF NOT EXISTS
-
 
 """
 
@@ -86,6 +84,7 @@ class Liga():
     def databas_tabeller(self):
         conn= connect(self.fil)
         cursor= conn.cursor()
+        cursor.execute("CREATE TABLE IF NOT EXISTS lagen (lagnamn TEXT PRIMARY KEY, vinster INTEGER, oavgjorda INTEGER, förluster INTEGER, gjorda_mål INTEGER, insläppta_mål INTEGER)")
         cursor.execute("CREATE TABLE IF NOT EXISTS matchhistorik (match_id INTEGER PRIMARY KEY AUTOINCREMENT, hemmalag TEXT, bortalag TEXT, hemmamål INTEGER, bortamål INTEGER)")
 
         conn.commit()
@@ -136,6 +135,16 @@ class Liga():
             lista_med_lagnamn.append(lagnamn)
         return lista_med_lagnamn
 
+    def demodata(self):                 #anropas om användaren att köra demo istället för att skapa en egen liga
+        demolag= [("Arsenal",0,0,0,0,0) ,("Man City",0,0,0,0,0) ,("Chelsea",0,0,0,0,0) ,("Aston Villa",0,0,0,0,0) ,("Brighton",0,0,0,0,0),
+                ("Sunderland",0,0,0,0,0) ,("Man Utd",0,0,0,0,0) ,("Liverpool",0,0,0,0,0) ,("Crystal Palace",0,0,0,0,0) ,("Brentford",0,0,0,0,0),
+                ("Bournemouth",0,0,0,0,0) ,("Tottenham",0,0,0,0,0) ,("Newcastle",0,0,0,0,0) ,("Everton",0,0,0,0,0) ,("Fullham",0,0,0,0,0),
+                ("Nottingham",0,0,0,0,0) ,("West Ham",0,0,0,0,0) ,("Leeds",0,0,0,0,0) ,("Burnkey",0,0,0,0,0) ,("Wolverhampton",0,0,0,0,0)]
+        with connect(self.fil) as conn:
+            cursor= conn.cursor()
+            cursor.execute("DELETE FROM lagen")     #rensar tabellen efter varje demo
+            cursor.executemany("INSERT INTO lagen VALUES(?,?,?,?,?,?)", demolag)    #fyller demoligan
+            conn.commit()
 
 
 class GUI:
@@ -146,7 +155,28 @@ class GUI:
 
         self.root.geometry("800x750")
         self.root.title("Fotbollsserie")
+        #self.huvud_frame()
 
+        self.onboarding_frame= Frame(self.root)
+        self.onboarding_frame.pack()
+        hälsning= Label(self.onboarding_frame, text="Välkommen! Välj liga", font=("Arial", 40, "bold"), pady=50)
+        hälsning.pack()
+
+        demo_knapp= Button(self.onboarding_frame, text="Premier league (testa programmet)", font=(25), width=35, command= self.huvud_frame)
+        demo_knapp.pack(padx=25, pady=25)
+
+        skapa_liga_knapp= Button(self.onboarding_frame, text="Skapa en ny liga", font=(25), width= 35)
+        skapa_liga_knapp.pack(padx=25, pady=25)
+
+        egna_ligor_knapp= Button(self.onboarding_frame, text="bläddra bland egna ligor", font=("25"), width= 35)
+        egna_ligor_knapp.pack(padx=25, pady=25)
+
+        avsluta_knapp= Button(self.onboarding_frame, text="Avsluta", font=(25), width=35, command=self.avsluta)                                       #avsluta körs bid tryck
+        avsluta_knapp.pack(padx=25, pady=25)
+
+
+    def huvud_frame(self):
+        self.onboarding_frame.pack_forget()
         self.main_frame = Frame(self.root)                      #tydligen bättre stil att ha en main frame än att direkt fylla roten
         self.main_frame.pack()          
         label= Label(self.main_frame, text="välj ett alternativ", font=("Arial",40, "bold"), pady="50")
@@ -235,12 +265,12 @@ class GUI:
 
     
     def visa_historik(self):
-        self.historik.delete(1.0, END)
+        self.historik.delete(1.0, END)              #tar bort all historik 
         utskrift="matchhistorik: \n"
-        historik_lista= self.liga.hämta_historik()
+        historik_lista= self.liga.hämta_historik()      #hämtar senaste historiken
         for match in historik_lista:
             utskrift += f"{match[0]} {match[2]} - {match[3]} {match[1]}\n"
-        self.historik.insert(END, utskrift)
+        self.historik.insert(END, utskrift)                         #lägger in den senaste historiken
 
     def se_tabell(self):                                #visar tabellen i en sekundär frame
         self.main_frame.pack_forget()
