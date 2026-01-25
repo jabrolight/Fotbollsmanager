@@ -18,4 +18,6 @@ Kör programmet:
 plan för framtiden: 
 * att kunna skapa, spara och gå tillbaka till egna ligor
 * möjlighet att välja mellan liga, utslagning (random lottning), serie + utsalgning
-* 
+* Flask/ Django för backend
+* html/css/js eller react för frontend
+* electron/ tauri/ pyinstaller för paketering till .exe
