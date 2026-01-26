@@ -34,4 +34,4 @@ plan för framtiden:
 * electron/ tauri/ pyinstaller för paketering till .exe
 
 Kör programmet: 
-* Klona repor och kör filen fotbollsserie slutversion.py
+* Klona repor och kör filen main.py
