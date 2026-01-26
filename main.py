@@ -7,4 +7,5 @@ def main():
     GUI(root, premier_league)
     root.mainloop()
 
-main()
+if __name__== "__main__":
+    main()

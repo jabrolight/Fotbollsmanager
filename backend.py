@@ -123,3 +123,25 @@ class Liga():
             cursor.execute("DELETE FROM lagen")     #rensar tabellen efter varje demo
             cursor.executemany("INSERT INTO lagen VALUES(?,?,?,?,?,?)", demolag)    #fyller demoligan
             conn.commit()
+
+    def skapa_egen_liga(self, liganamn: str, laglista: list):      #dessa kommer från GUI
+        if not liganamn.isalnum():
+            return False            #säg åt användaren att bara använda bokstäver och siffror (inte mellanslag)
+        with connect(self.fil)as conn:
+            cursor=conn.cursor()
+            cursor.execute(f"SELECT name FROM SQLITE_MASTER WHERE type='table' AND name=?", (liganamn,))
+            tabellnamn= cursor.fetchone()
+            if tabellnamn is None:
+
+                cursor.execute(f"CREATE TABLE {liganamn} (lagnamn TEXT PRIMARY KEY, vinster INTEGER, oavgjorda INTEGER, förluster INTEGER, gjorda_mål INTEGER, insläppta_mål INTEGER)")
+
+                for lag in laglista:
+                    cursor.execute(f"INSERT INTO {liganamn} VALUES (?,?,?,?,?,?)", (lag,0,0,0,0,0))
+            
+                return True
+            else:
+                return 0 #returnerar inte false för att det görs längre upp, två false hade gjort så att GUI inte vet var felet är
+            
+    
+
+            
