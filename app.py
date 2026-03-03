@@ -4,7 +4,7 @@ from backend import Liga
 
 app = Flask(__name__)
 
-premier_league = Liga("Lagen.db")
+premier_league = Liga("Lagen.db") #här skapar premier league
 
 @app.route("/")
 def index():
@@ -13,6 +13,12 @@ def index():
 @app.route("/demo")
 def demo():
     return render_template("demo.html")
+
+@app.route("/demotabell")
+def demotabell():
+    #premier_league.fylla_dict_med_objekt()
+    tabell= str(premier_league)
+    return render_template("demo_tabell.html", demo_tabell= tabell)
 
 # Detta startar själva webbservern
 if __name__ == "__main__":
