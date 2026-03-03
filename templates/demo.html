@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <title>Fotbollsserie - Huvudmeny</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: white;
+            padding: 50px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 40px;
+            font-size: 32px;
+        }
+
+        .btn {
+            display: block;
+            background-color: #28a745; /* Grön färg för match & tabell */
+            color: white;
+            text-decoration: none;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #218838;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d; /* Grå knapp för att gå tillbaka */
+            margin-top: 30px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Välj ett alternativ</h1>
+        
+        <a href="/dokumentera" class="btn">Dokumentera match</a>
+        <a href="{{ url_for ('demotabell')}}" class="btn">Se tabell</a>
+        
+        <a href="/" class="btn btn-secondary">Tillbaka (Avsluta liga)</a>
+    </div>
+
+</body>
+</html>

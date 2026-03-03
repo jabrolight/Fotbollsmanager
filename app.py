@@ -1,0 +1,26 @@
+from flask import Flask, render_template
+from backend import Liga
+
+
+app = Flask(__name__)
+
+premier_league = Liga("Lagen.db") #här skapar premier league
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route("/demo")
+def demo():
+    return render_template("demo.html")
+
+@app.route("/demotabell")
+def demotabell():
+    #premier_league.fylla_dict_med_objekt()
+    tabell= str(premier_league)
+    return render_template("demo_tabell.html", demo_tabell= tabell)
+
+# Detta startar själva webbservern
+if __name__ == "__main__":
+    # debug=True gör att servern startar om sig själv automatiskt när du sparar kodändringar!
+    app.run(debug=True)

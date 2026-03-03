@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <title>Fotbollsserie - Välkommen</title>
+    <style>
+        /* Grundinställningar för hela sidan */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5; /* Ljusgrå modern bakgrund */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Gör så att rutan hamnar i mitten av skärmen */
+            margin: 0;
+        }
+
+        /* Rutan som håller allt innehåll */
+        .container {
+            background-color: white;
+            padding: 50px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Mjuk skugga */
+            text-align: center;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 40px;
+            font-size: 32px;
+        }
+
+        /* Våra snygga knappar */
+        .btn {
+            display: block; /* Gör att knapparna hamnar under varandra */
+            background-color: #007bff; /* Blå färg */
+            color: white;
+            text-decoration: none; /* Tar bort understrykningen från länken */
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            transition: background-color 0.3s; /* Mjuk animation vid hover */
+        }
+
+        /* Vad som händer när man håller musen över en knapp */
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* En röd knapp för "Avsluta" */
+        .btn-danger {
+            background-color: #dc3545;
+            margin-top: 30px; /* Lite extra avstånd över denna */
+        }
+
+        .btn-danger:hover {
+            background-color: #b02a37;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Välkommen!<br>Välj liga</h1>
+        
+        <a href="{{ url_for('demo')}}" class="btn">Premier league (Testa programmet)</a>
+        <a href="/skapa_liga" class="btn">Skapa en ny liga</a>
+        <a href="/egna_ligor" class="btn">Bläddra bland egna ligor</a>
+        
+        <a href="/avsluta" class="btn btn-danger">Avsluta</a>
+    </div>
+
+</body>
+</html>
