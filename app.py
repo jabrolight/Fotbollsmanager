@@ -20,7 +20,9 @@ def demotabell():
     tabell= str(premier_league)
     return render_template("demo_tabell.html", demo_tabell= tabell)
 
-# Detta startar själva webbservern
+@app.route("/dokumentera")
+def dokumentera_match():
+    return render_template("dokumentera_match.html")
 if __name__ == "__main__":
     # debug=True gör att servern startar om sig själv automatiskt när du sparar kodändringar!
     app.run(debug=True)
