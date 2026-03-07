@@ -1,14 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demotabell</title>
+    <title>Tabell</title>
+    <style>
+
+        .center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+
+        /* Designen för vår tabell */
+        table {
+            width: 80%;
+            /*max-width: 600px;*/
+            border-collapse: collapse; /* Smälter ihop kanterna så det blir snygga streck */
+            font-family: Arial, sans-serif;
+            margin-top: 20px;
+        }
+        
+        /* Design för alla rutor (th = rubrik, td = data) */
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ccc; /* Ett grått streck under varje rad */
+        }
+
+        /* Så här styr vi förskjutningarna nu! */
+        .text-vanster { text-align: left; }
+        .text-mitten { text-align: center; }
+        .text-hoger { text-align: right; }
+        
+        /* Gör rubrikraden lite grå */
+        tr.rubrik-rad {
+            background-color: #f4f4f4;
+        }
+    </style>
 </head>
 <body>
-    <h1>Premier league tabellen</h1>
-    <pre >
-    {{ demo_tabell }}
-        </pre>
+
+    <h1>Premier League Tabellen</h1>
+
+    <table class="center">
+        
+        <tr class="rubrik-rad">
+            <th class="text-vanster">Lag</th>
+            <th class="text-mitten">V</th>
+            <th class="text-mitten">O</th>
+            <th class="text-mitten">F</th>
+            <th class="text-mitten">Målskillnad</th>
+            <th class="text-hoger">Poäng</th>
+        </tr>
+
+        {% for lag in demo_tabell.values() %}
+        <tr>
+            <td class="text-vanster">{{ lag.lagnamn }}</td>
+            <td class="text-mitten">{{ lag.vinster }}</td>
+            <td class="text-mitten">{{ lag.oavgjorda }}</td>
+            <td class="text-mitten">{{ lag.förluster }}</td>
+            <td class="text-mitten">{{ lag.gjorda_mål }} - {{ lag.insläppta_mål }}</td>
+            <td class="text-hoger"><strong>{{ lag.poäng }}</strong></td>
+        </tr>
+        {% endfor %}
+
+    </table>
+
 </body>
 </html>

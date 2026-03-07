@@ -17,7 +17,7 @@ def demo():
 @app.route("/demotabell")
 def demotabell():
     #premier_league.fylla_dict_med_objekt()
-    tabell= str(premier_league)
+    tabell= premier_league.dict_med_lag
     return render_template("demo_tabell.html", demo_tabell= tabell)
 
 @app.route("/dokumentera")
