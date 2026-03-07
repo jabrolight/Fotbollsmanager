@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrera Match</title>
+    <style>
+        /* Importera en snygg modern font (Inter) från Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+        :root {
+            --primary: #4361ee; /* Modern lila-blå accentfärg */
+            --bg: #f4f7fe;      /* Väldigt ljus blågrå bakgrund */
+            --card-bg: #ffffff;
+            --text-main: #2b2d42;
+            --text-muted: #8d99ae;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            /*background-color: var(--bg);
+            color: var(--text-main);*/
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            background-image: url("static/images/plan.png");
+        }
+
+        /* En grid som delar skärmen i två kolumner */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 30px;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        /* Den vita rutan som håller innehåll */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        }
+
+        h2 {
+            margin-top: 0;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 25px;
+        }
+
+        /* --- Formulärets design --- */
+        .match-arena {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8f9fa;
+            padding: 30px 20px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+
+        .team-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 15px;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        select:focus { border-color: var(--primary); }
+
+        .score-input {
+            width: 80px;
+            height: 80px;
+            font-size: 40px;
+            font-weight: 800;
+            text-align: center;
+            border: none;
+            border-radius: 16px;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            color: var(--primary);
+            outline: none;
+        }
+
+        .score-input::-webkit-inner-spin-button {
+            -webkit-appearance: none; /* Döljer de små pilarna i sifferrutan */
+        }
+
+        /* VS badgen i mitten */
+        .vs-badge {
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.4);
+            margin: 0 15px;
+            flex-shrink: 0;
+        }
+
+        /* --- Knappar & Meddelanden --- */
+        .btn-submit {
+            background: var(--primary);
+            color: white;
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.3);
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .alert.fel { background: #ffe3e3; color: #c92a2a; }
+        .alert.success { background: #d3f9d8; color: #2b8a3e; }
+
+        /* --- Historik (Höger kolumn) --- */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: var(--bg);
+            border-radius: 12px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .history-item:hover { transform: translateX(5px); }
+
+        .history-score {
+            background: white;
+            padding: 5px 12px;
+            border-radius: 8px;
+            color: var(--primary);
+            font-weight: 800;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--primary); }
+
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        
+        <div class="card">
+            <h2>Registrera Resultat</h2>
+
+            {% if meddelande %}
+                <div class="alert {{ meddelande_typ }}">
+                    {{ meddelande }}
+                </div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('dokumentera_match') }}">
+                <div class="match-arena">
+                    
+                    <div class="team-section">
+                        <select name="hemmalag">
+                            <option value="">Välj hemmalag</option>
+                            {% for lag in lagnamn_lista %}
+                                <option value="{{ lag }}">{{ lag }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="number" name="hemmamal" class="score-input" min="0" placeholder="0">
+                    </div>
+
+                    <div class="vs-badge">VS</div>
+
+                    <div class="team-section">
+                        <select name="bortalag">
+                            <option value="">Välj bortalag</option>
+                            {% for lag in lagnamn_lista %}
+                                <option value="{{ lag }}">{{ lag }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="number" name="bortamal" class="score-input" min="0" placeholder="0">
+                    </div>
+
+                </div>
+
+                <button type="submit" class="btn-submit">Spara Matchen</button>
+            </form>
+
+            <a href="{{ url_for('demo') }}" class="back-link">← Avbryt och gå tillbaka</a>
+        </div>
+
+        <div class="card">
+            <h2>Senaste Matcherna</h2>
+            
+            <div class="history-list">
+                {% for match in historik %}
+                <div class="history-item">
+                    <span>{{ match[0] }}</span>
+                    <div class="history-score">{{ match[2] }} - {{ match[3] }}</div>
+                    <span>{{ match[1] }}</span>
+                </div>
+                {% endfor %}
+                
+                {% if not historik %}
+                    <div style="color: var(--text-muted); text-align: center; margin-top: 20px;">
+                        Inga matcher är spelade ännu.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
