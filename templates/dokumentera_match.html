@@ -205,29 +205,29 @@
                 </div>
             {% endif %}
 
-            <form method="POST" action="{{ url_for('dokumentera_match') }}">
+            <form method="POST" action="{{ url_for('dokumentera') }}">
                 <div class="match-arena">
                     
                     <div class="team-section">
-                        <select name="hemmalag">
-                            <option value="">Välj hemmalag</option>
-                            {% for lag in lagnamn_lista %}
+                        <select name="hemmalag" required>
+                            <option value="" disabled selected>Välj hemmalag</option>
+                            {% for lag in lagnamn %}
                                 <option value="{{ lag }}">{{ lag }}</option>
                             {% endfor %}
                         </select>
-                        <input type="number" name="hemmamal" class="score-input" min="0" placeholder="0">
+                        <input type="number" name="hemmamal" class="score-input" min="0" placeholder="0" required>
                     </div>
 
                     <div class="vs-badge">VS</div>
 
                     <div class="team-section">
-                        <select name="bortalag">
-                            <option value="">Välj bortalag</option>
-                            {% for lag in lagnamn_lista %}
+                        <select name="bortalag" required>
+                            <option value="" disabled selected>Välj bortalag</option>
+                            {% for lag in lagnamn %}
                                 <option value="{{ lag }}">{{ lag }}</option>
                             {% endfor %}
                         </select>
-                        <input type="number" name="bortamal" class="score-input" min="0" placeholder="0">
+                        <input type="number" name="bortamal" class="score-input" min="0" placeholder="0" required>
                     </div>
 
                 </div>
