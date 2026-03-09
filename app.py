@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, flash, url_for
 from backend import Liga
 from flask import request
 
@@ -48,6 +48,18 @@ def dokumentera():
                            lagnamn=lagen, 
                            historik=senaste_historiken)
 
+
+@app.route("/radera_match/<int:match_id>", methods=["POST"])
+def radera_match_route(match_id):
+    # 1. Anropa din skottsäkra backend-metod för att uppdatera databasen
+    premier_league.radera_match(match_id)
+    
+    # 2. Skapa ett flash-meddelande som bekräftar raderingen
+    # Om du vill att rutan ska vara röd kan du byta "success" mot "fel"
+    #flash("Matchen har raderats från historiken och poängen är återställd.", "success")
+    
+    # 3. Skicka tillbaka användaren till exakt samma sida!
+    return redirect(url_for('dokumentera'))
 
 if __name__ == "__main__":
     # debug=True gör att servern startar om sig själv automatiskt när du sparar kodändringar!
