@@ -36,6 +36,17 @@ class Lag:
         elif mål_för < mål_emot:
             self.förluster += 1
 
+    def borttagen_match(self, mål_för, mål_emot):
+        self.gjorda_mål -= mål_för
+        self.insläppta_mål -= mål_emot
+        if mål_för > mål_emot:
+            self.vinster -=1
+            self.poäng -=3
+        elif mål_för == mål_emot:
+            self.oavgjorda -= 1
+            self.poäng -=1
+        elif mål_för < mål_emot:
+            self.förluster -= 1
 
 
         
@@ -123,6 +134,32 @@ class Liga():
             cursor.execute("DELETE FROM lagen")     #rensar tabellen efter varje demo
             cursor.executemany("INSERT INTO lagen VALUES(?,?,?,?,?,?)", demolag)    #fyller demoligan
             conn.commit()
+
+
+    def radera_match(self, match_id):
+        with connect(self.fil) as conn:
+            cursor= conn.cursor()
+            cursor.execute("SELECT hemmalag, bortalag, hemmamål, bortamål FROM matchhistorik WHERE match_id= ?", (match_id,))
+            berörd_match= cursor.fetchone()
+
+        hemmalaget= self.dict_med_lag[berörd_match[0]]
+        bortalaget= self.dict_med_lag[berörd_match[1]]
+        hemmamål= int(berörd_match[2])
+        bortamål= int(berörd_match[3])
+
+        hemmalaget.borttagen_match(hemmamål, bortamål)
+        bortalaget.borttagen_match(bortamål, hemmamål)
+
+        with connect(self.fil) as conn:
+            cursor= conn.cursor()
+            cursor.execute("UPDATE lagen SET vinster=?, oavgjorda=?, förluster=?, gjorda_mål=?, insläppta_mål=? WHERE lagnamn=?", (hemmalaget.vinster, hemmalaget.oavgjorda, hemmalaget.förluster, hemmalaget.gjorda_mål, hemmalaget.insläppta_mål, hemmalaget.lagnamn))
+            #uppdaterar hemmalaget i db
+            cursor.execute("UPDATE lagen SET vinster=?, oavgjorda=?, förluster=?, gjorda_mål=?, insläppta_mål=? WHERE lagnamn=?", (bortalaget.vinster, bortalaget.oavgjorda, bortalaget.förluster, bortalaget.gjorda_mål, bortalaget.insläppta_mål, bortalaget.lagnamn))
+            #uppdaterar bortalaget i db
+            cursor.execute("DELETE FROM matchhistorik WHERE match_id = ?", (match_id,))
+            conn.commit()
+        
+
 
     def skapa_egen_liga(self, liganamn: str, laglista: list):      #dessa kommer från GUI
         if not liganamn.isalnum():

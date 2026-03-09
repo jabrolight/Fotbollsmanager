@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 from backend import Liga
-
+from flask import request
 
 app = Flask(__name__)
 
@@ -20,7 +20,6 @@ def demotabell():
     tabell= premier_league.dict_med_lag
     return render_template("demo_tabell.html", demo_tabell= tabell)
 
-from flask import request
 
 # Vi tillåter BÅDE GET (hämta sidan) och POST (skicka formulär)
 @app.route("/dokumentera", methods=["GET", "POST"])
@@ -36,9 +35,8 @@ def dokumentera():
         
         # Spara i SQL via din backend!
         premier_league.dokumentera_match2(hemma, borta, h_mal, b_mal)
-        # Nu är SQL uppdaterad!
         
-    
+
     # 2. DETTA KÖRS ALLTID (Oavsett GET eller POST)
     # Hämta den allra senaste datan från databasen
     premier_league.fylla_dict_med_objekt()
