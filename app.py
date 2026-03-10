@@ -51,7 +51,6 @@ def dokumentera():
 
 @app.route("/radera_match/<int:match_id>", methods=["POST"])
 def radera_match_route(match_id):
-    # 1. Anropa din skottsäkra backend-metod för att uppdatera databasen
     premier_league.radera_match(match_id)
     
     # 2. Skapa ett flash-meddelande som bekräftar raderingen
