@@ -113,7 +113,7 @@ class Liga():
     def hämta_historik(self):
         with connect(self.fil) as conn:
             Cursor=conn.cursor()
-            Cursor.execute("SELECT hemmalag, bortalag, hemmamål, bortamål FROM matchhistorik ORDER BY match_id DESC")
+            Cursor.execute("SELECT hemmalag, bortalag, hemmamål, bortamål, match_id FROM matchhistorik ORDER BY match_id DESC")
             historik= Cursor.fetchall()
         return historik
     
