@@ -60,6 +60,24 @@ def radera_match_route(match_id):
     # 3. Skicka tillbaka användaren till exakt samma sida!
     return redirect(url_for('dokumentera'))
 
+
+@app.route("/skapa-egen-liga", methods= ["GET", "POST"])
+def skapa_liga():
+    if request.method== "POST":
+        liganamn= request.form.get("liganamn")
+        lagnamn= request.form.get("lagnamn")
+        resultat= premier_league.skapa_egen_liga(liganamn, lagnamn)
+        if resultat is False:
+            flash("Liganamnet inte giltigt, använd endast bokstäver och siffror, inga mellanslag")
+        elif resultat == 0:
+            flash ("En liga med det namnet finns redan")
+        else:
+            flash(f"ligan {liganamn} skapad")
+            return redirect(url_for("skapa_liga"))
+
+
+    return render_template("skapa_liga.html")
+
 if __name__ == "__main__":
     # debug=True gör att servern startar om sig själv automatiskt när du sparar kodändringar!
     app.run(debug=True)
