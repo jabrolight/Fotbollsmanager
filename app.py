@@ -65,6 +65,13 @@ def radera_match_route(match_id):
 def skapa_liga():
     if request.method== "POST":
         liganamn= request.form.get("liganamn")
+
+        alla_rutor= request.form.getlist("lag")
+        rensad_lista=[]
+        for lag in alla_rutor:
+            if lag.strip() != "":
+                rensad_lista.append(lag.strip())
+                
         lagnamn= request.form.get("lagnamn")
         resultat= premier_league.skapa_egen_liga(liganamn, lagnamn)
         if resultat is False:
