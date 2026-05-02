@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skapa Liga</title>
+</head>
+<body>
+    <form method="POST" action="{{ url_for('skapa_liga') }}">
+    
+    <h3>1. Vad ska ligan heta?</h3>
+    <input type="text" name="liganamn" required placeholder="T.ex. Superligan">
+
+    <h3>2. Fyll i lagen (Lämna tomt om du vill ha färre lag)</h3>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        {% for i in range(20) %}
+            <input type="text" name="lag" placeholder="Lag {{ i+1 }}">
+        {% endfor %}
+    </div>
+
+    <button type="submit" style="margin-top: 20px;">Skapa ligan</button>
+</form>
+</body>
+</html>

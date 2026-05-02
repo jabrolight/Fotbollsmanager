@@ -24,7 +24,7 @@ class Lag:
         else: 
             return self.lagnamn < other.lagnamn 
     
-    def spelad_match(self, mål_för, mål_emot):      # ändrar attribut efter ett registrerat matchresultat
+    def spelad_match(self, mål_för, mål_emot):      # ändrar attribut efter ett registrerat matchresultat 
         self.gjorda_mål += mål_för
         self.insläppta_mål += mål_emot
         if mål_för > mål_emot:
