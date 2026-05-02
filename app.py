@@ -71,9 +71,9 @@ def skapa_liga():
         for lag in alla_rutor:
             if lag.strip() != "":
                 rensad_lista.append(lag.strip())
-                
-        lagnamn= request.form.get("lagnamn")
-        resultat= premier_league.skapa_egen_liga(liganamn, lagnamn)
+
+        #lagnamn= request.form.get("lagnamn")
+        resultat= premier_league.skapa_egen_liga(liganamn, rensad_lista)
         if resultat is False:
             flash("Liganamnet inte giltigt, använd endast bokstäver och siffror, inga mellanslag")
         elif resultat == 0:
